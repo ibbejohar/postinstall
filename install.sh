@@ -27,7 +27,7 @@ function xdg(){
 function Dotfiles(){
 	cd $HOME
 	rm .bashrc
-	cd https://github.com/ibbejohar/.dotfile.git
+	git clone https://github.com/ibbejohar/.dotfile.git
 	cd .dotfile
 	./config.sh
 }
