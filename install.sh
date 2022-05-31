@@ -76,14 +76,14 @@ function aur_helper(){
 	then
 		git clone https://aur.archlinux.org/yay.git
 		cd yay
-		makepkg -si
+		makepkg -si --noconfirm
 		cd ..
 		rm -rf yay
 	elif [ "$aur" = "paru" ]
 	then
 		git clone https://aur.archlinux.org/paru.git
 		cd paru
-		makepkg -si
+		makepkg -si --noconfirm
 		cd ..
 		rm -rf paru
 	else
@@ -148,8 +148,8 @@ function privelige(){
 	then
 		echo "Installing doas"
 		sudo pacman -S opendoas --noconfirm
-		touch /etc/doas.conf
-		cat "permit persist :wheel" >> /etc/doas.conf
+		sudo touch /etc/doas.conf
+		sudo cat "permit persist :wheel" >> /etc/doas.conf
 		doas pacman -Rns sudo --noconfirm
 	else
 		echo "Installing sudo"	
