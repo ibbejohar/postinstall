@@ -70,7 +70,6 @@ function aur_helper(){
 	devour
 	ly
 	mangodl
-	nerd-fonts-complete
 	"
 	if [ "$aur" = "yay" ]
 	then
@@ -129,7 +128,7 @@ function install_wm(){
 
 
 function services(){
-	sudo systemctl enable ly.services
+	sudo systemctl enable ly.service
 
 }
 
