@@ -149,8 +149,9 @@ function privelige(){
 		echo "Installing doas"
 		sudo pacman -S opendoas --noconfirm
 		sudo touch /etc/doas.conf
-		sudo cat "permit persist :wheel" >> /etc/doas.conf
+		echo "permit persist :wheel" | sudo tee /etc/doas.conf
 		doas pacman -Rns sudo --noconfirm
+		doas ln -s /usr/bin/doas /usr/bin/sudo
 	else
 		echo "Installing sudo"	
 		echo "sudo"
