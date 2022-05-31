@@ -123,6 +123,8 @@ function install_wm(){
 		cd $HOME/.config
 		git clone https://github.com/ibbejohar/spectrwm.git
 		cd $HOME
+	else
+		echo "No window manager was selected"
 	fi
 
 }
