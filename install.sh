@@ -70,6 +70,7 @@ function aur_helper(){
 	devour
 	ly
 	mangodl
+	nerd-font-complete
 	"
 	if [ "$aur" = "yay" ]
 	then
