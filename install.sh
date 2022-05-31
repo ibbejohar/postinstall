@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function main(){
 
@@ -160,7 +160,7 @@ function privelige(){
 	fi
 }
 
-### Exucuting funtions ###
+### Executing funtions ###
 
 xdg
 Dotfiles
