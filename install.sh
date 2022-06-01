@@ -2,24 +2,42 @@
 
 function main(){
 
-echo "Welcome To Arch Post Installation"
+# color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${PURPLE}Welcome To Arch Post Installation"
 echo " "
-echo "Choose which privelige elavator program to use: "
-echo "Sudo or Doas"
+echo -e "${RED}TYPE ONLY THE NUMBER"
+echo -e "${PURPLE}Choose one of the following"
+echo -e "${NC}1. Automatic    2. Manual"
+read action
+echo " "
+echo -e "${PURPLE}Choose which privelige elavator program to use"
+echo -e "${NC}1. Doas  2. Sudo"
 read prev_elavator
-echo "Which AUR helper"
-echo "Yay or Paru"
+echo " "
+echo -e "${PURPLE}Which AUR helper"
+echo -e "${NC}1. Yay   2. Paru"
 read aur
-echo "Choose which wm"
-echo "dwm or spectrwm"
+echo " "
+echo -e "${PURPLE}Choose which wm"
+echo -e "${NC}1. dwm   2. spectrwm"
 read wm
-echo "Mounting point for additional drives"
+echo " "
+echo -e "${PURPLE}Mounting point for additional drives"
+echo -e "${NC}name of the drive i.g sda1"
 read drive
-echo "Initiating post installation..."
+echo " "
+echo -e "${GREEN}Initiating post installation..."
+echo -e "${NC} "
 sleep 3
 
 function privelige(){
-	if [ "$prev_elavator" = "doas" ]
+	if [ "$prev_elavator" = "1" ]
 	then
 		echo "Installing doas"
 		sudo pacman -S opendoas --noconfirm
@@ -27,10 +45,15 @@ function privelige(){
 		echo "permit nopass :wheel" | sudo tee /etc/doas.conf
 		doas pacman -Rns sudo --noconfirm
 		doas ln -s /usr/bin/doas /usr/bin/sudo
-	else
+    elif [ "$prev_elavator" = "2" ]
+    then
 		# Add pound symbol at the start of line 82
 		# and remove pound symbol at start of line 85
 		sudo bash -c "sed -i '82 s/^/#/' /etc/sudoers && sed -i '85 s/^#//' /etc/sudoers"
+    else 
+		echo -e "${RED}This postinstall script will not work if the privelige elavator is not choosen"
+		sleep 3
+		exit
 	fi
 }
 
@@ -89,14 +112,14 @@ function aur_helper(){
 	mangodl
 	nerd-fonts-complete
 	"
-	if [ "$aur" = "yay" ]
+	if [ "$aur" = "1" ]
 	then
 		git clone https://aur.archlinux.org/yay.git
 		cd yay
 		makepkg -si --noconfirm
 		cd ..
 		rm -rf yay
-	elif [ "$aur" = "paru" ]
+	elif [ "$aur" = "2" ]
 	then
 		git clone https://aur.archlinux.org/paru.git
 		cd paru
@@ -120,7 +143,9 @@ function add_packages(){
 }
 
 function install_wm(){
-	if [ "$wm" = "dwm" ]
+
+		# dwm
+	if [ "$wm" = "1" ]
 	then
 		mkdir -p $HOME/.config/suckless
 		cd $HOME/.config/suckless
@@ -134,7 +159,9 @@ function install_wm(){
 		sudo make clean install
 		./install.sh
 		cd $HOME	
-	elif [ "$wm" = "spectrwm" ]
+
+		# spectrwm
+	elif [ "$wm" = "2" ]
 	then
 		sudo pacman -S spectrwm
 		cd $HOME/.config
@@ -163,10 +190,10 @@ function mounting_point(){
 }
 
 function clean_up(){
-	if [ "$prev_elavator" = "doas" ]
+	if [ "$prev_elavator" = "1" ]
     then
 		echo "permit persist :wheel" | sudo tee /etc/doas.conf
-    elif [ "$prev_elavator" = "sudo" ]
+    elif [ "$prev_elavator" = "2" ]
     then
 		# Add pound symbol at the start of line 85
 		# and remove pound symbol at the start of line 82
