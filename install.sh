@@ -18,6 +18,21 @@ read drive
 echo "Initiating post installation..."
 sleep 3
 
+function privelige(){
+	if [ "$prev_elavator" = "doas" ]
+	then
+		echo "Installing doas"
+		sudo pacman -S opendoas --noconfirm
+		sudo touch /etc/doas.conf
+		echo "permit nopass :wheel" | sudo tee /etc/doas.conf
+		doas pacman -Rns sudo --noconfirm
+		doas ln -s /usr/bin/doas /usr/bin/sudo
+	else
+		# Add pound symbol at the start of line 82
+		# and remove pound symbol at start of line 85
+		sudo bash -c "sed -i '82 s/^/#/' /etc/sudoers && sed -i '85 s/^#//' /etc/sudoers"
+	fi
+}
 
 function xdg(){
 	sudo pacman -S xdg-user-dirs --noconfirm
@@ -146,23 +161,18 @@ function mounting_point(){
 
 }
 
-function privelige(){
-	if [ "$prev_elavator" = "doas" ]
-	then
-		echo "Installing doas"
-		sudo pacman -S opendoas --noconfirm
-		sudo touch /etc/doas.conf
-		echo "permit nopass :wheel" | sudo tee /etc/doas.conf
-		doas pacman -Rns sudo --noconfirm
-		doas ln -s /usr/bin/doas /usr/bin/sudo
-	else
-		echo "Installing sudo"	
-		echo "sudo"
-	fi
-}
-
 function clean_up(){
-    echo "permit persist :wheel" | sudo tee /etc/doas.conf
+	if [ "$prev_elavator" = "doas" ]
+    then
+		echo "permit persist :wheel" | sudo tee /etc/doas.conf
+    elif [ "$prev_elavator" = "sudo" ]
+    then
+		# Add pound symbol at the start of line 85
+		# and remove pound symbol at the start of line 82
+		sudo bash -c "sed -i '85 s/^/#/' /etc/sudoers && sed -i '82 s/^#//' /etc/sudoers"
+    else
+		echo "NULL"
+    fi
 
 }
 
