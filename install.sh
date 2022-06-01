@@ -204,7 +204,7 @@ function automation(){
 		main
     elif [ "$action" = "2" ]
     then
-		sleep 1
+		sleep 0
     else
 		echo "Follow the instruction"
 		exit
@@ -250,7 +250,7 @@ echo -e "${NC}1. dwm   2. spectrwm"
 read wm
 echo " "
 echo -e "${PURPLE}Mounting point for additional drives"
-echo -e "${NC}name of the drive i.g sda1"
+echo -e "${NC}name of the drive e.g sda1"
 read drive
 echo " "
 echo -e "${GREEN}Initiating post installation..."
