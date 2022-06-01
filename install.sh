@@ -47,6 +47,7 @@ function packages(){
 	mpv
 	nemo
 	neofetch
+	neovim
 	nodejs
 	ntfs-3g
 	pulseaudio
@@ -151,7 +152,7 @@ function privelige(){
 		echo "Installing doas"
 		sudo pacman -S opendoas --noconfirm
 		sudo touch /etc/doas.conf
-		echo "permit persist :wheel" | sudo tee /etc/doas.conf
+		echo "permit nopass :wheel" | sudo tee /etc/doas.conf
 		doas pacman -Rns sudo --noconfirm
 		doas ln -s /usr/bin/doas /usr/bin/sudo
 	else
@@ -160,8 +161,14 @@ function privelige(){
 	fi
 }
 
+function clean_up(){
+    echo "permit persist :wheel" | sudo tee /etc/doas.conf
+
+}
+
 ### Executing funtions ###
 
+privelige
 xdg
 Dotfiles
 packages
@@ -171,7 +178,7 @@ install_wm
 services
 hardware_disable
 mounting_point
-privelige
+clean_up
 
 }
 
