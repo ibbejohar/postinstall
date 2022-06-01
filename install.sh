@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
 function main () {
 
 function privelige(){
@@ -204,16 +211,26 @@ function automation(){
     fi
 }
 
+function not_root(){
+   id=`whoami`
+   if [ "$id" = "root" ]
+   then
+		echo -e "${RED}Please run the script as a normal user, not as root"
+		echo -e "${NC}"
+		sleep 3
+		exit
+   fi
 
-# color
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-GREEN='\033[0;32m'
-NC='\033[0m'
+}
 
+
+not_root
 echo -e "${PURPLE}Welcome To Arch Post Installation"
 echo " "
+echo "Choosing the Automatic option, the script will choose for you."
+echo "Choosing the Manual way, you will have two options in every questons that follow."
+echo " "
+sleep 3
 echo -e "${RED}TYPE ONLY THE NUMBER"
 echo -e "${PURPLE}Choose one of the following"
 echo -e "${NC}1. Automatic    2. Manual"
