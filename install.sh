@@ -138,7 +138,7 @@ function services(){
 
 function hardware_disable(){
 	sudo touch /etc/modprobe.d/nobeep.conf
-	sudo echo "blacklist pcspkr" >> /etc/modprobe.d/nobeep.conf
+	echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
 }
 
 function mounting_point(){
