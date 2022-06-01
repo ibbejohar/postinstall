@@ -1,40 +1,6 @@
 #!/bin/bash
 
-function main(){
-
-# color
-RED='\033[0;31m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-GREEN='\033[0;32m'
-NC='\033[0m'
-
-echo -e "${PURPLE}Welcome To Arch Post Installation"
-echo " "
-echo -e "${RED}TYPE ONLY THE NUMBER"
-echo -e "${PURPLE}Choose one of the following"
-echo -e "${NC}1. Automatic    2. Manual"
-read action
-echo " "
-echo -e "${PURPLE}Choose which privelige elavator program to use"
-echo -e "${NC}1. Doas  2. Sudo"
-read prev_elavator
-echo " "
-echo -e "${PURPLE}Which AUR helper"
-echo -e "${NC}1. Yay   2. Paru"
-read aur
-echo " "
-echo -e "${PURPLE}Choose which wm"
-echo -e "${NC}1. dwm   2. spectrwm"
-read wm
-echo " "
-echo -e "${PURPLE}Mounting point for additional drives"
-echo -e "${NC}name of the drive i.g sda1"
-read drive
-echo " "
-echo -e "${GREEN}Initiating post installation..."
-echo -e "${NC} "
-sleep 3
+function main () {
 
 function privelige(){
 	if [ "$prev_elavator" = "1" ]
@@ -217,7 +183,62 @@ services
 hardware_disable
 mounting_point
 clean_up
-
 }
 
+function automation(){
+
+    if [ "$action" = "1" ]
+    then
+		prev_elavator="1"
+		aur="2"
+		wm="1"
+		drive="sda1"
+
+		main
+    elif [ "$action" = "2" ]
+    then
+		sleep 1
+    else
+		echo "Follow the instruction"
+		exit
+    fi
+}
+
+
+# color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${PURPLE}Welcome To Arch Post Installation"
+echo " "
+echo -e "${RED}TYPE ONLY THE NUMBER"
+echo -e "${PURPLE}Choose one of the following"
+echo -e "${NC}1. Automatic    2. Manual"
+read action
+automation
+echo " "
+echo -e "${PURPLE}Choose which privelige elavator program to use"
+echo -e "${NC}1. Doas  2. Sudo"
+read prev_elavator
+echo " "
+echo -e "${PURPLE}Which AUR helper"
+echo -e "${NC}1. Yay   2. Paru"
+read aur
+echo " "
+echo -e "${PURPLE}Choose which wm"
+echo -e "${NC}1. dwm   2. spectrwm"
+read wm
+echo " "
+echo -e "${PURPLE}Mounting point for additional drives"
+echo -e "${NC}name of the drive i.g sda1"
+read drive
+echo " "
+echo -e "${GREEN}Initiating post installation..."
+echo -e "${NC} "
+sleep 3
 main
+
+
