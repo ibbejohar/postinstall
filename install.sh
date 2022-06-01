@@ -42,6 +42,7 @@ function xdg(){
 function Dotfiles(){
 	cd $HOME
 	rm .bashrc
+	rm .bash_profile
 	git clone https://github.com/ibbejohar/.dotfile.git
 	cd .dotfile
 	./config.sh
