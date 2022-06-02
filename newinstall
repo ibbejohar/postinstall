@@ -1,0 +1,346 @@
+#!/bin/bash
+
+# color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+function service() {
+	if [ "$distro" = "1" ]
+	then
+		sudo systemctl enable ly.service
+	elif [ "$distro" = "2" ]
+	then
+		echo "Placeholder"
+	fi
+}
+
+
+
+function clean_up(){
+		if [ "$prev_elavator" = "1" ]
+		then
+			echo "permit persist :wheel" | sudo tee /etc/doas.conf
+		elif [ "$prev_elavator" = "2" ]
+		then
+			# Add pound symbol at the start of line 85
+			# and remove pound symbol at the start of line 82
+			sudo bash -c "sed -i '85 s/^/#/' /etc/sudoers && sed -i '82 s/^#//' /etc/sudoers"
+		else
+			echo "NULL"
+		fi
+
+	}
+
+
+
+	function install_wm(){
+
+			# dwm
+		if [ "$wm" = "1" ]
+		then
+			mkdir -p $HOME/.config/suckless
+			cd $HOME/.config/suckless
+			git clone https://github.com/ibbejohar/dwm.git
+			git clone https://github.com/ibbejohar/blocks.git
+
+			cd dwm
+			sudo make clean install
+			cd ..
+			cd blocks
+			sudo make clean install
+			./install.sh
+			cd $HOME	
+
+			# spectrwm
+		elif [ "$wm" = "2" ]
+		then
+			sudo pacman -S spectrwm
+			cd $HOME/.config
+			git clone https://github.com/ibbejohar/spectrwm.git
+			cd $HOME
+		else
+			echo "No window manager was selected"
+		fi
+
+	}
+
+
+
+function add_packages(){
+		git clone https://github.com/CoolnsX/dra-cla
+		cd dra-cla
+		sudo cp dra-cla /usr/local/bin/dra-cla
+		cd ..
+		rm -rf dra-cla
+	}
+
+
+
+
+
+
+function void_linux(){
+	void_repo="
+	void-repo-nonfree
+	void-repo-multilib
+	void-repo-multilib-nonfree
+	"
+	void_video_driver="
+	nvidia
+	nvidia-libs-32bit
+	"
+	void_pac="
+	alacritty
+	mpv
+	sxiv
+	exa
+	zathura
+	zathura-pdf-mupdf
+	zip
+	unzip
+	wget
+	fuse
+	ntfs-3g
+	neofetch
+	feh
+	firefox
+	nodejs
+	pulsemixer
+	pulseaudio
+	nerd-fonts-ttf
+	"
+	
+	sudo xbps-install -Syu
+	sudo xbps-install -Sy $void_repo	
+	sudo xbps-install -Sy $void_video_driver $void_pac	
+
+}
+
+
+
+function arch_linux(){
+	arch_pac="
+	alacritty
+	aria2
+	bitwarden
+	curl
+	exa
+	feh
+	firefox
+	fuse
+	git
+	mpv
+	nemo
+	neofetch
+	nodejs
+	ntfs-3g
+	pulseaudio
+	pulsemixer
+	unrar
+	unzip
+	zathura
+	zathura-pdf-mupdf
+	zip
+	"	
+
+	aur_pac="
+	ani-cli
+	devour
+	ly
+	mangodl
+	nerd-fonts-complete	
+	"
+	function aur_helper(){
+		if [ "$aur" = "1" ]
+		then
+			git clone https://aur.archlinux.org/yay.git
+			cd yay 
+			makepkg -si --noconfirm
+			cd ..
+			rm -rf yay
+		elif [ "$aur" = "2" ]
+		then
+			git clone https://aur.archlinux.org/paru.git
+			cd paru
+			makepkg -si --noconfirm
+			cd ..
+			rm -rf paru
+		fi
+
+	}	
+aur_helper
+
+sudo pacman -S --noconfirm $arch_pac
+$aur -S --noconfirm $aur_pac
+	
+
+}
+
+
+
+function main(){
+
+    function privelige(){
+	    if [ "$prev_elavator" = "1" ]
+	    then
+			echo "Installing doas"
+			sudo pacman -S opendoas --noconfirm
+			sudo touch /etc/doas.conf
+			echo "permit nopass :wheel" | sudo tee /etc/doas.conf
+			doas pacman -Rns sudo --noconfirm
+			doas ln -s /usr/bin/doas /usr/bin/sudo
+    	elif [ "$prev_elavator" = "2" ]
+    		then
+			# Add pound symbol at the start of line 82
+			# and remove pound symbol at start of line 85
+			sudo bash -c "sed -i '82 s/^/#/' /etc/sudoers && sed -i '85 s/^#//' /etc/sudoers"
+    	else 
+			echo -e "${RED}This postinstall script will not work if the privelige elavator is not choosen"
+			sleep 3
+			exit
+		fi
+}
+
+
+	function xdg(){
+		sudo $pkg xdg-user-dirs 
+		xdg-user-dirs-update
+	}
+
+	
+	function Dotfiles(){
+		cd $HOME
+		rm .bashrc
+		rm .bash_profile
+		git clone https://github.com/ibbejohar/.dotfile.git
+		cd .dotfile
+		./config.sh
+	}
+	
+
+	function hardware_disable(){
+		sudo touch /etc/modprobe.d/nobeep.conf
+		echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
+	}
+
+	function mounting_point(){
+		sudo mkdir -p /media/"$drive"
+
+	}
+privelige
+xdg
+Dotfiles
+hardware_disable
+mounting_point
+
+	
+}
+
+
+
+function linux_distro(){
+	if [ "$distro" = "1" ]
+	then
+		arch_linux
+	elif [ "$distro" = "2" ]
+	then
+		void_linux
+	fi
+}
+
+
+
+function automation(){
+	# auto
+    if [ "$action" = "1" ]
+    then
+		prev_elavator="1"
+		wm="1"
+		drive="sda1"
+		if [ "$distro" = "1" ]
+		then
+			aur="1"
+			main
+			arch_linux
+			add_packages
+			wm
+			clean_up
+			service
+		elif [ "$distro" = "2" ]
+		then
+			main
+			void_linux
+			add_packages
+			wm
+			clean_up
+			service
+		fi
+
+	# manual
+    elif [ "$action" = "2" ]
+    then
+			sleep 0
+    else
+		echo "Follow the instruction"
+		exit
+    fi
+}
+
+
+
+function not_root(){
+   id=`whoami`
+   if [ "$id" = "root" ]
+   then
+		echo -e "${RED}Please run the script as a normal user, not as root"
+		echo -e "${NC}"
+		sleep 3
+		exit
+   fi
+
+}
+
+
+echo -e "${PURPLE}Welcome To Arch Post Installation"
+echo " "
+echo -e "${RED}TYPE ONLY THE NUMBER"
+echo -e "${PURPLE}Choose the distro"
+echo -e "${NC}1. Arch   2. Void"
+read distro
+echo " "
+echo -e "${PURPLE}Choosing the Automatic option, the script will choose for you."
+echo "Choosing the Manual way, you will have two options in every questons that follow."
+echo " "
+sleep 1
+echo  "Choose one of the following"
+echo -e "${NC}1. Automatic    2. Manual"
+read action
+automation
+echo " "
+echo -e "${PURPLE}Choose which privelige elavator program to use"
+echo -e "${NC}1. Doas  2. Sudo"
+read prev_elavator
+echo " "
+echo -e "${PURPLE}Which AUR helper"
+echo -e "${NC}1. Yay   2. Paru"
+read aur
+echo " "
+echo -e "${PURPLE}Choose which wm"
+echo -e "${NC}1. dwm   2. spectrwm"
+read wm
+echo " "
+echo -e "${PURPLE}Mounting point for additional drives"
+echo -e "${NC}name of the drive e.g sda1"
+read drive
+echo " "
+echo -e "${GREEN}Initiating post installation..."
+echo -e "${NC} "
+sleep 3
+main
+
+
+
+
