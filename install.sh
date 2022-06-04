@@ -69,18 +69,18 @@ function check_distro(){
 		end_credit_distro="Arch"
 		pkg_install="pacman -S --noconfirm"
 		pkg_remove="pacman -Rns --noconfirm"
-		pkg=$arch_pkg $gen_pkg
-		pkg_dep=$arch_dep
-		src_pkg=$aur_pkg
+		pkg="$arch_pkg $gen_pka"
+		pkg_dep="$arch_dep"
+		src_pkg="$aur_pkg"
 	# Void
 	elif [ "$option_distro" = "2" ]
 	then
 		end_credit_distro="Void"
 		pkg_install="xbps-install -Sy"
 		pkg_remove="xbps-remove -R"
-		pkg=$void_pkg $gen_pkg
-		pkg_dep=$void_dep
-		src_pkg=$xbps_src_pkg
+		pkg="$void_pkg $gen_pkg"
+		pkg_dep="$void_dep"
+		src_pkg="$xbps_src_pkg"
 	else
 		echo  -e "${RED}Choose a distro"
 		sleep 1
@@ -270,7 +270,6 @@ function body(){
 
 	function install_pkg(){
 		sudo $pkg_install $pkg $pkg_dep
-		$src_install $src_pkg
 	}		
 
 
