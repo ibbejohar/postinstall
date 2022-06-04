@@ -1,43 +1,169 @@
 #!/bin/bash
 
 # color
+
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+function options(){
+	clear
 
-function main(){
+	check_root
 
-    function privelige(){
-	    if [ "$prev_elavator" = "1" ]
-	    then
-			echo "Installing doas"
-			sudo pacman -S opendoas --noconfirm
-			sudo touch /etc/doas.conf
-			echo "permit nopass :wheel" | sudo tee /etc/doas.conf
-			doas pacman -Rns sudo --noconfirm
-			doas ln -s /usr/bin/doas /usr/bin/sudo
-    	elif [ "$prev_elavator" = "2" ]
-    		then
-			# Add pound symbol at the start of line 82
-			# and remove pound symbol at start of line 85
-			sudo bash -c "sed -i '82 s/^/#/' /etc/sudoers && sed -i '85 s/^#//' /etc/sudoers"
-    	else 
-			echo -e "${RED}This postinstall script will not work if the privelige elavator is not choosen"
-			sleep 3
-			exit
-		fi
+	echo -e "${PURPLE}Welcome To Post Installation"
+	echo " "
+	echo -e "${PURPLE}Choose the distro"
+	echo -e "${NC}1. Arch   2. Void"
+	read option_distro
+
+	check_distro
+
+	echo " "
+	echo -e "${PURPLE}Choose one of the following"
+	echo -e "${NC}1. Automatic    2. Manual"
+	read option_auto
+
+	auto
+
+	echo " "
+	echo -e "${PURPLE}Choose which privelige elavator program to use"
+	echo -e "${NC}1. Doas   2. Sudo"
+	read option_priv
+	echo " "
+
+	prompt_src_helper
+
+	echo -e "${PURPLE}Choose which wm"
+	echo -e "${NC}1. Dwm   2. Spectrwm"
+	read option_wm
+	echo " "
+	echo -e "${PURPLE}Mounting point for additional drive i.g sda1${NC}"
+	read  option_drive
+	echo " "
+	echo -e "${GREEN}Initiating Post Installation..."
+	sleep 2
+	head
+	body
+	foot
+	exit
 }
 
+function check_root(){
+	if [ "$(whoami)" = "root" ]
+	then
+		echo -e "${RED}MUST BE A NORMAL USER FOR THE SCRIPT TO RUN"
+		echo -e "${NC}"
+		sleep 1
+		exit
+	fi
+
+}
+
+function check_distro(){
+	# Arch
+	if [ "$option_distro" = "1" ]
+	then
+		end_credit_distro="Arch"
+		pkg_install="pacman -S --noconfirm"
+		pkg_remove="pacman -Rns --noconfirm"
+		pkg="$arch_pkg $gen_pkg"
+		pkg_dep="$arch_dep"
+		src_pkg="$aur_pkg"
+	# Void
+	elif [ "$option_distro" = "2" ]
+	then
+		end_credit_distro="Void"
+		pkg_install="xbps-install -Sy"
+		pkg_remove="xbps-remove -R"
+		pkg="$void_pkg $gen_pkg"
+		pkg_dep="$void_dep"
+		src_pkg="$xbps_src_pkg"
+	else
+		echo  -e "${RED}Choose a distro"
+		sleep 1
+		exit
+	fi
+
+}
+
+function auto(){
+	# Automatic
+	if [ "$option_auto" = "1" ]
+	then
+		option_priv="1"
+		option_aur_helper="2"
+		option_wm="1"
+		option_drive="sda1"
+		head
+		body
+		foot
+		exit
+	fi
+
+}
+
+function prompt_src_helper(){
+	# Arch
+	if [ "$option_distro" = "1" ]
+	then
+		echo -e "${PURPLE}Choose which AUR helper"
+		echo " "
+		echo -e "${NC}1. Yay   2. Paru"
+		read option_aur_helper
+	# Void
+	elif [ "$option_distro" = "2" ]
+	then
+		echo -e "${PURPLE}xbps-src is not added yet"
+		echo -e "${NC}"
+	fi
+
+}
+
+function head(){
+
+	function priv(){
+		# Doas
+		if [ "$option_priv" = "1" ]
+		then
+			clear
+			sudo $pkg_install opendoas
+			sudo touch /etc/doas.conf
+			echo "permit nopass :wheel" | sudo tee /etc/doas.conf
+				# Arch
+				if [ "$option_distro" = "1" ]
+				then
+					doas $pkg_remove sudo
+				elif [ "$option_distro" = "2" ]
+				then
+					sudo touch /etc/xbps.d/ignorefile
+					echo "ignorepkg=sudo" | sudo tee /etc/xbps.d/ignorefile
+					doas $pkg_remove sudo
+
+					# Adding repo
+					sudo $pkg_install $void_repo
+					sudo xbps-install -Su
+				fi
+			doas ln -s /usr/bin/doas /usr/bin/sudo
+			end_credit_priv="Doas"
+		elif [ "$option_priv" = "2" ]
+		then
+			clear
+		 	# Add pound symbol at the start of line 82
+			# adn remove pound symbol at start of line 85
+			sudo bash -c "sed -i '82 s/^/#/' /etc/sudoers && sed -i '85 s/^#//' /etc/sudoers"
+			end_credit_priv="Sudo"
+		fi
+	}
 
 	function xdg(){
-		sudo pacman -S xdg-user-dirs --noconfirm
+		sudo $pkg_install xdg-user-dirs
 		xdg-user-dirs-update
 	}
 
-	function Dotfiles(){
+	function dotfile(){
 		cd $HOME
 		rm .bashrc
 		rm .bash_profile
@@ -46,18 +172,117 @@ function main(){
 		./config.sh
 	}
 
-	function add_packages(){
-		git clone https://github.com/CoolnsX/dra-cla
-		cd dra-cla
-		sudo cp dra-cla /usr/local/bin/dra-cla
-		cd ..
-		rm -rf dra-cla
+	function hardware_disable(){
+		sudo touch /etc/modprobe.d/nobeep.conf
+		echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
 	}
 
-	function install_wm(){
+	function mounting_point(){
+		sudo mkdir -p /media/"$option_drive"
 
-			# dwm
-		if [ "$wm" = "1" ]
+	}
+
+priv
+xdg
+dotfile
+hardware_disable
+mounting_point
+}
+
+function body(){
+	
+	function packages(){
+		
+		gen_pkg="
+		alacritty
+		aria2
+		curl
+		exa
+		feh
+		firefox
+		fuse
+		git
+		mpv
+		nemo
+		neofetch
+		nodejs
+		ntfs-3g
+		pulseaudio
+		pulsemixer
+		rofi
+		sxiv
+		unrar
+		unzip
+		zathura
+		zip
+		"
+		arch_pkg="
+		bitwarden
+		"
+		arch_dep="
+		zathura-pdf-mupdf"
+
+		aur_pkg="
+		ani-cli
+		devour
+		ly
+		mangodl
+		nerd-fonts-complete
+		"
+
+		void_repo="
+		void-repo-nonfree
+		void-repo-multilib
+		void-repo-multilib-nonfree
+		"
+		void_pkg="
+		nerd-fonts-ttf
+		"
+
+		void_dep="
+		zathura-pdf-mupdf
+		"
+
+	}
+
+	function src_helper_install(){
+		# Yay
+		if [ "$option_aur_helper" = "1" ]
+		then
+			git clone https://aur.archlinux.org/yay.git
+			cd yay
+			makepkg -si --noconfirm
+			cd ..
+			rm -rf yay
+			src_install="yay -S"
+		elif [ "$option_aur_helper" = "2" ]
+		then
+			git clone https://aur.archlinux.org/paru.git
+			cd paru
+			makepkg -si --noconfirm
+			cd ..
+			rm -rf paru
+			src_install="paru -S"
+		fi
+
+	}
+
+	function install_pkg(){
+		sudo $pkg_install $pkg
+		$src_install $src_pkg
+	}		
+
+
+packages
+src_helper_install
+install_pkg
+}
+
+function foot(){
+
+	function install_wm(){
+		# Dwm
+		if [ "$option_wm" = "1" ]
 		then
 			mkdir -p $HOME/.config/suckless
 			cd $HOME/.config/suckless
@@ -70,208 +295,67 @@ function main(){
 			cd blocks
 			sudo make clean install
 			./install.sh
-			cd $HOME	
-
-			# spectrwm
-		elif [ "$wm" = "2" ]
-		then
-			sudo pacman -S spectrwm
-			cd $HOME/.config
-			git clone https://github.com/ibbejohar/spectrwm.git
 			cd $HOME
-		else
-			echo "No window manager was selected"
+			end_credit_wm="Dwm"
+		# Spectrwm
+		elif [ "option_wm" = "2"  ]
+		then
+		sudo $pkg_install spectrwm
+		cd $HOME/.config
+		git clone https://github.com/ibbejohar/spectrwm.git
+		cd $HOME
+		end_credit_wm="Spectrwm"
+		else 
+		end_credit_wm="Did not choose WM"
 		fi
-
-	}
-
-	function hardware_disable(){
-		sudo touch /etc/modprobe.d/nobeep.conf
-		echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
-	}
-
-	function mounting_point(){
-		sudo mkdir -p /media/"$drive"
-
 	}
 
 	function clean_up(){
-		if [ "$prev_elavator" = "1" ]
+		# Doas
+		if [ "$option_priv" = "1" ]
 		then
 			echo "permit persist :wheel" | sudo tee /etc/doas.conf
-		elif [ "$prev_elavator" = "2" ]
+		elif [ "$option_priv" = "2" ]
 		then
 			# Add pound symbol at the start of line 85
 			# and remove pound symbol at the start of line 82
 			sudo bash -c "sed -i '85 s/^/#/' /etc/sudoers && sed -i '82 s/^#//' /etc/sudoers"
-		else
-			echo "NULL"
 		fi
-
 	}
 
-}
-
-
-function arch () {
-
-	function arch_pac(){
-
-		program="
-		alacritty
-		aria2
-		bitwarden
-		curl
-		exa
-		feh
-		firefox
-		fuse
-		git
-		mpv
-		nemo
-		neofetch
-		neovim
-		nodejs
-		ntfs-3g
-		pulseaudio
-		pulsemixer
-		rofi
-		sxiv
-		unclutter
-		unrar
-		unzip
-		zathura
-		zathura-pdf-mupdf
-		zip
-		"
-		sudo pacman -S $program --noconfirm
+	function end_credit(){
+		clear
+		echo -e "${PURPLE}---------- $end_credit_distro ----------"
+		echo " "
+		echo -e "${PURPLE}---------- Privelige Elavator ----------"
+		echo " "
+		echo -e "${NC}$end_credit_priv"
+		echo " "
+		echo -e "${PURPLE}---------- Packages ----------"
+		echo " "
+		echo -e "${NC}$gen_pkg $pkg"
+		echo " "
+		echo -e "${PURPLE}---------- Dependicies ----------"
+		echo " "
+		echo -e "${NC}$pkg_dep"
+		echo " "
+		echo -e "${PURPLE}---------- Window Manager ----------"
+		echo " "
+		echo -e "${NC}$end_credit_wm"
+		echo " "
+		echo -e "${PURPLE}---------- Mounting Point ----------"
+		echo " "
+		echo -e "${NC}$option_drive"
+		echo " "
+		echo -e "${PURPLE}--------------------------"
+		sleep 1
 	}
 
-	function aur_helper(){
-
-		aur_packages="
-		ani-cli
-		devour
-		ly
-		mangodl
-		nerd-fonts-complete
-		"
-		if [ "$aur" = "1" ]
-		then
-			git clone https://aur.archlinux.org/yay.git
-			cd yay
-			makepkg -si --noconfirm
-			cd ..
-			rm -rf yay
-		elif [ "$aur" = "2" ]
-		then
-			git clone https://aur.archlinux.org/paru.git
-			cd paru
-			makepkg -si --noconfirm
-			cd ..
-			rm -rf paru
-		else
-			echo "No AUR helper was selected"
-		fi
-
-		$aur -S $aur_packages --noconfirm
-
-	}
-
-
-	function systemd(){
-		sudo systemctl enable ly.service
-
-	}
-
-	### Executing Functions ###
-	arch_pac
-	aur_helper
-	systemd
-
-}
-
-function automation(){
-
-    if [ "$action" = "1" ]
-    then
-		prev_elavator="1"
-		aur="2"
-		wm="1"
-		drive="sda1"
-
-		main
-    elif [ "$action" = "2" ]
-    then
-		sleep 0
-    else
-		echo "Follow the instruction"
-		exit
-    fi
-}
-
-function not_root(){
-   id=`whoami`
-   if [ "$id" = "root" ]
-   then
-		echo -e "${RED}Please run the script as a normal user, not as root"
-		echo -e "${NC}"
-		sleep 3
-		exit
-   fi
-
+install_wm
+clean_up
+end_credit
 }
 
 
-function linux_distro(){
-	if [ "$distro" = "1" ]
-	then
-		pkg="pacman -S --noconfirm"
-	elif [ "$distro" = "2" ]
-	then
-		pkg="xbps-install -Sy"
-	fi
-}
-
-
-
-
-not_root
-echo -e "${PURPLE}Welcome To Arch Post Installation"
-echo " "
-echo -e "${RED}TYPE ONLY THE NUMBER"
-echo -e "${PURPLE}Choose the distro"
-echo -e "${NC}1. Arch   2. Void"
-read distro
-echo " "
-echo -e "${PURPLE}Choosing the Automatic option, the script will choose for you."
-echo "Choosing the Manual way, you will have two options in every questons that follow."
-echo " "
-sleep 3
-echo  "Choose one of the following"
-echo -e "${NC}1. Automatic    2. Manual"
-read action
-automation
-echo " "
-echo -e "${PURPLE}Choose which privelige elavator program to use"
-echo -e "${NC}1. Doas  2. Sudo"
-read prev_elavator
-echo " "
-echo -e "${PURPLE}Which AUR helper"
-echo -e "${NC}1. Yay   2. Paru"
-read aur
-echo " "
-echo -e "${PURPLE}Choose which wm"
-echo -e "${NC}1. dwm   2. spectrwm"
-read wm
-echo " "
-echo -e "${PURPLE}Mounting point for additional drives"
-echo -e "${NC}name of the drive e.g sda1"
-read drive
-echo " "
-echo -e "${GREEN}Initiating post installation..."
-echo -e "${NC} "
-sleep 3
-main
-
+options
 
