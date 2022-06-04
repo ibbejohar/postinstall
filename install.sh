@@ -12,6 +12,7 @@ function options(){
 	clear
 
 	check_root
+	packages
 
 	echo -e "${PURPLE}Welcome To Post Installation"
 	echo " "
@@ -122,6 +123,61 @@ function prompt_src_helper(){
 
 }
 
+function packages(){
+		
+		gen_pkg="
+		alacritty
+		aria2
+		curl
+		exa
+		feh
+		firefox
+		fuse
+		git
+		mpv
+		nemo
+		neofetch
+		nodejs
+		ntfs-3g
+		pulseaudio
+		pulsemixer
+		rofi
+		sxiv
+		unrar
+		unzip
+		zathura
+		zip
+		"
+		arch_pkg="
+		bitwarden
+		"
+		arch_dep="
+		zathura-pdf-mupdf
+		"
+
+		aur_pkg="
+		ani-cli
+		devour
+		ly
+		mangodl
+		nerd-fonts-complete
+		"
+
+		void_repo="
+		void-repo-nonfree
+		void-repo-multilib
+		void-repo-multilib-nonfree
+		"
+		void_pkg="
+		nerd-fonts-ttf
+		"
+
+		void_dep="
+		zathura-pdf-mupdf
+		"
+
+	}
+
 function head(){
 
 	function priv(){
@@ -191,61 +247,7 @@ mounting_point
 
 function body(){
 	
-	function packages(){
-		
-		gen_pkg="
-		alacritty
-		aria2
-		curl
-		exa
-		feh
-		firefox
-		fuse
-		git
-		mpv
-		nemo
-		neofetch
-		nodejs
-		ntfs-3g
-		pulseaudio
-		pulsemixer
-		rofi
-		sxiv
-		unrar
-		unzip
-		zathura
-		zip
-		"
-		arch_pkg="
-		bitwarden
-		"
-		arch_dep="
-		zathura-pdf-mupdf
-		"
-
-		aur_pkg="
-		ani-cli
-		devour
-		ly
-		mangodl
-		nerd-fonts-complete
-		"
-
-		void_repo="
-		void-repo-nonfree
-		void-repo-multilib
-		void-repo-multilib-nonfree
-		"
-		void_pkg="
-		nerd-fonts-ttf
-		"
-
-		void_dep="
-		zathura-pdf-mupdf
-		"
-
-	}
-
+	
 	function src_helper_install(){
 		# Yay
 		if [ "$option_aur_helper" = "1" ]
@@ -270,10 +272,8 @@ function body(){
 
 	function install_pkg(){
 		sudo $pkg_install $pkg $pkg_dep
+		$src_install $src_pkg
 	}		
-
-
-packages
 src_helper_install
 install_pkg
 }
