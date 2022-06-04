@@ -202,6 +202,7 @@ function head(){
 				then
 					sudo touch /etc/xbps.d/ignorefile
 					echo "ignorepkg=sudo" | sudo tee /etc/xbps.d/ignorefile
+					doas xbps-install -Su
 					doas $pkg_remove sudo
 
 					# Adding repo
