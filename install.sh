@@ -69,7 +69,7 @@ function check_distro(){
 		end_credit_distro="Arch"
 		pkg_install="pacman -S --noconfirm"
 		pkg_remove="pacman -Rns --noconfirm"
-		pkg="$arch_pkg $gen_pka"
+		pkg="$arch_pkg $gen_pkg"
 		pkg_dep="$arch_dep"
 		src_pkg="$aur_pkg"
 	# Void
@@ -333,7 +333,7 @@ function foot(){
 		echo " "
 		echo -e "${PURPLE}---------- Packages ----------"
 		echo " "
-		echo -e "${NC}$gen_pkg $pkg"
+		echo -e "${NC}$pkg"
 		echo " "
 		echo -e "${PURPLE}---------- Dependicies ----------"
 		echo " "
