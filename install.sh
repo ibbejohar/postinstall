@@ -257,7 +257,7 @@ function body(){
 			makepkg -si --noconfirm
 			cd ..
 			rm -rf yay
-			src_install="yay -S"
+			src_install="yay -S --noconfirm"
 		elif [ "$option_aur_helper" = "2" ]
 		then
 			git clone https://aur.archlinux.org/paru.git
@@ -265,7 +265,7 @@ function body(){
 			makepkg -si --noconfirm
 			cd ..
 			rm -rf paru
-			src_install="paru -S"
+			src_install="paru -S --noconfirm"
 		fi
 
 	}
