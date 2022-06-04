@@ -220,7 +220,8 @@ function body(){
 		bitwarden
 		"
 		arch_dep="
-		zathura-pdf-mupdf"
+		zathura-pdf-mupdf
+		"
 
 		aur_pkg="
 		ani-cli
@@ -268,7 +269,7 @@ function body(){
 	}
 
 	function install_pkg(){
-		sudo $pkg_install $pkg
+		sudo $pkg_install $pkg $pkg_dep
 		$src_install $src_pkg
 	}		
 
@@ -348,6 +349,7 @@ function foot(){
 		echo -e "${NC}$option_drive"
 		echo " "
 		echo -e "${PURPLE}--------------------------"
+		echo -e "${NC}"
 		sleep 1
 	}
 
