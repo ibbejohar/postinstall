@@ -45,6 +45,7 @@ function options(){
 	read  option_drive
 	echo " "
 	echo -e "${GREEN}Initiating Post Installation..."
+	echo -e "${NC}"
 	sleep 2
 	head
 	body
