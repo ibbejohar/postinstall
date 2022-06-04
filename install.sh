@@ -174,6 +174,11 @@ function packages(){
 
 		void_dep="
 		zathura-pdf-mupdf
+		base-devel
+		libX11-devel
+		libXft-devel
+		libXinerama-devel
+		make
 		"
 
 	}
