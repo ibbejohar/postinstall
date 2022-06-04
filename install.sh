@@ -201,8 +201,7 @@ function head(){
 				elif [ "$option_distro" = "2" ]
 				then
 					sudo touch /etc/xbps.d/ignorefile
-					echo "ignorepkg=sudo" | sudo tee /etc/xbps.d/ignorefile
-					doas xbps-install -Su
+					echo "ignorepkg=sudo" | sudo tee /etc/xbps.d/ignorefile.conf
 					doas $pkg_remove sudo
 
 					# Adding repo
