@@ -304,7 +304,7 @@ function foot(){
 			cd $HOME
 			end_credit_wm="Dwm"
 		# Spectrwm
-		elif [ "option_wm" = "2"  ]
+		elif [ "$option_wm" = "2"  ]
 		then
 		sudo $pkg_install spectrwm
 		cd $HOME/.config
